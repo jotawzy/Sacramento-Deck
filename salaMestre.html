@@ -3,37 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mesa do Mestre</title>
-
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <link rel="stylesheet" href="Css/style.css">
-    <link rel="stylesheet" href="Css/mestre.css">
+    <title>Sacramento Deck - Painel do Mestre</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <div class="container">
+        <h1>Painel do Mestre</h1>
+        
+        <div class="botoes-controle">
+            <button id="btn-nova-rodada" class="btn">Nova Rodada</button>
+            <button id="btn-limpar-tudo" class="btn btn-perigo">Limpar Tudo</button>
+        </div>
 
-<div class="sala">
+        <div class="painel-principal">
+            <div class="bloco-tabela">
+                <h2>Ordem de Iniciativa</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Personagem</th>
+                            <th>Carta Puxada</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-corpo">
+                        <tr>
+                            <td colspan="2" style="text-align:center; color:#888;">Carregando dados...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-    <div class="topoSala">
-        <h2 id="nomeMestreTopo"></h2>
+            <div class="bloco-historico">
+                <h2>Histórico da Mesa</h2>
+                <div id="log-iniciativas" class="caixa-log"></div>
+            </div>
+        </div>
     </div>
 
-    <div class="abas">
-
-        <button class="aba">
-            <i class="fa-solid fa-cards-blank"></i>
-            Deck Livre
-        </button>
-
-        <button class="aba">
-            <i class="fa-solid fa-khanda"></i>
-            Iniciativa
-        </button>
-
-    </div>
-
-
+    <!-- Vinculação crucial como módulo JS -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
     <div class="historico">
 
         <h2>Deck Livre</h2>
