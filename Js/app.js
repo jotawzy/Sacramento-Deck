@@ -1,39 +1,152 @@
-import {
-  db,
-  ref,
-  onValue,
-  set,
-  get,
-  remove
-} from "./firebase.js";
+import { db, ref, onValue, set, get } from "./firebase.js";
 
-import {
-  comprarCartaFirebase,
-  reiniciarDeckFirebase
-} from "./deck.js";
+// detecta em qual página o usuário está através dos elementos da tela
+const tabelaIniciativa = document.getElementById("tabela-corpo");
+const logIniciativas = document.getElementById("log-iniciativas");
+const btnComprar = document.getElementById("btn-comprar-carta");
+const areaCartas = document.getElementById("area-cartas-jogador");
 
-/* =========================
-   IDENTIFICA TELA
-========================= */
-const campoMestre = document.getElementById("log-iniciativas");
-const campoJogador = document.getElementById("area-cartas-jogador");
+// =========================================================================
+// 🏰 CÓDIGO DA TELA DO MESTRE (salaMestre.html)
+// =========================================================================
+if (tabelaIniciativa || logIniciativas) {
+  console.log("Painel do Mestre Inicializado");
 
-/* =========================
-   🔥 TELA DO MESTRE
-========================= */
-if (campoMestre) {
-  const tabelaIniciativa = document.getElementById("tabela-corpo");
-  const logIniciativas = document.getElementById("log-iniciativas");
-
-  // 🔴 ÚNICO LISTENER (FONTE DA VERDADE)
-  onValue(ref(db, "sala/iniciativas"), (snapshot) => {
+  // Escuta o Firebase em tempo real para atualizar a mesa
+  onValue(ref(db, "sala"), (snapshot) => {
     const dados = snapshot.val() || {};
+    const iniciativas = dados.iniciativas || {};
+    const logs = dados.logs || [];
 
-    tabelaIniciativa.innerHTML = "";
+    // 1. Atualiza a Tabela de Iniciativas Ativas (Ordenando do maior peso para o menor)
+    if (tabelaIniciativa) {
+      tabelaIniciativa.innerHTML = "";
+      const listaOrdenada = Object.entries(iniciativas).sort((a, b) => {
+        const pesoA = a[1].peso || 0;
+        const pesoB = b[1].peso || 0;
+        return pesoB - pesoA;
+      });
 
-    const listaOrdenada = Object.entries(dados).sort(
-      (a, b) => (b[1]?.peso || 0) - (a[1]?.peso || 0)
-    );
+      if (listaOrdenada.length === 0) {
+        tabelaIniciativa.innerHTML = `<tr><td colspan="2" style="text-align:center; color:#888;">Aguardando jogadas...</td></tr>`;
+      } else {
+        listaOrdenada.forEach(([nome, info]) => {
+          const corNaipe = (info.naipe === '♥' || info.naipe === '♦') ? 'red' : 'black';
+          const linha = `<tr>
+            <td><strong>${nome}</strong></td>
+            <td><span style="color: ${corNaipe}; font-weight: bold;">${info.valor || ''}${info.naipe || ''}</span></td>
+          </tr>`;
+          tabelaIniciativa.innerHTML += linha;
+        });
+      }
+    }
+
+    // 2. Atualiza o Histórico / Logs de jogadas no painel inferior
+    if (logIniciativas) {
+      logIniciativas.innerHTML = "";
+      if (Array.isArray(logs)) {
+        logs.forEach((txt) => {
+          logIniciativas.innerHTML += `<p style="margin: 4px 0; border-bottom: 1px dashed #444; padding-bottom: 2px;">${txt}</p>`;
+        });
+      } else if (typeof logs === 'object') {
+        Object.values(logs).forEach((txt) => {
+          logIniciativas.innerHTML += `<p style="margin: 4px 0; border-bottom: 1px dashed #444; padding-bottom: 2px;">${txt}</p>`;
+        });
+      }
+      // Auto-scroll para o último log enviado
+      logIniciativas.scrollTop = logIniciativas.scrollHeight;
+    }
+  });
+
+  // Configuração dos botões do Mestre (usando seletores flexíveis para evitar erros)
+  document.addEventListener("click", async (e) => {
+    // Botão Nova Rodada
+    if (e.target && (e.target.id === "btn-nova-rodada" || e.target.innerText.includes("Nova Rodada"))) {
+      try {
+        await set(ref(db, "sala/iniciativas"), {});
+        const snapLogs = await get(ref(db, "sala/logs"));
+        let atualLogs = snapLogs.val();
+        if (!Array.isArray(atualLogs)) atualLogs = atualLogs ? Object.values(atualLogs) : [];
+        atualLogs.push("--- Nova Rodada Iniciada ---");
+        await set(ref(db, "sala/logs"), atualLogs);
+      } catch (err) {
+        alert("Erro no Firebase: " + err.message);
+      }
+    }
+
+    // Botão Limpar Tudo / Reset Total
+    if (e.target && (e.target.id === "btn-limpar-tudo" || e.target.innerText.includes("Limpar"))) {
+      if (confirm("Deseja resetar a mesa e o histórico inteiramente?")) {
+        try {
+          await set(ref(db, "sala"), {
+            iniciativas: {},
+            logs: ["Mesa reiniciada pelo mestre."]
+          });
+        } catch (err) {
+          alert("Erro ao limpar: " + err.message);
+        }
+      }
+    }
+  });
+}
+
+// =========================================================================
+// ⚔️ CÓDIGO DA TELA DO JOGADOR (salaJogador.html)
+// =========================================================================
+if (btnComprar || areaCartas) {
+  console.log("Painel do Jogador Inicializado");
+  
+  const nomeJogador = localStorage.getItem("rpg_nome_jogador") || "Jogador";
+
+  btnComprar?.addEventListener("click", async () => {
+    btnComprar.disabled = true;
+    btnComprar.innerText = "Puxando Carta...";
+
+    try {
+      // Lista de cartas para gerar uma puxada aleatória direta (substitui falhas do deck.js)
+      const valores = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+      const naipes = ["♠", "♥", "♦", "♣"];
+      const valorSorteado = valores[Math.floor(Math.random() * valores.length)];
+      const naipeSorteado = naipes[Math.floor(Math.random() * naipes.length)];
+      
+      // Peso para ordenação na tabela do mestre
+      const pesos = { "A": 14, "K": 13, "Q": 12, "J": 11, "10": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2 };
+      const pesoSorteado = pesos[valorSorteado] || 0;
+
+      // 1. Envia a iniciativa do jogador para o banco
+      await set(ref(db, `sala/iniciativas/${nomeJogador}`), {
+        valor: valorSorteado,
+        naipe: naipeSorteado,
+        peso: pesoSorteado
+      });
+
+      // 2. Adiciona o evento no histórico de logs
+      const snapLogs = await get(ref(db, "sala/logs"));
+      let atualLogs = snapLogs.val();
+      if (!Array.isArray(atualLogs)) atualLogs = atualLogs ? Object.values(atualLogs) : [];
+      atualLogs.push(`${nomeJogador} puxou: ${valorSorteado} de ${naipeSorteado}`);
+      await set(ref(db, "sala/logs"), atualLogs);
+
+      // 3. Renderiza a carta na tela do celular do jogador
+      if (areaCartas) {
+        const corCard = (naipeSorteado === '♥' || naipeSorteado === '♦') ? 'red' : 'black';
+        areaCartas.innerHTML = `
+          <div style="border: 3px solid #444; padding: 25px; border-radius: 12px; background: #fff; width: 120px; margin: 15px auto; text-align: center; font-size: 24px; color: ${corCard}; box-shadow: 0 4px 8px rgba(0,0,0,0.2);">
+            <div style="text-align: left; font-size: 16px;">${valorSorteado}</div>
+            <div style="font-size: 45px; margin: 10px 0;">${naipeSorteado}</div>
+            <div style="text-align: right; font-size: 16px; transform: rotate(180deg);">${valorSorteado}</div>
+          </div>
+        `;
+      }
+
+    } catch (error) {
+      alert("Falha ao salvar jogada no Firebase: " + error.message);
+    }
+
+    btnComprar.disabled = false;
+    btnComprar.innerText = "Comprar Carta";
+  });
+}
 
     listaOrdenada.forEach(([nome, info]) => {
       tabelaIniciativa.innerHTML += `
