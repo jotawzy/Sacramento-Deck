@@ -1,0 +1,80 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#111;
+    color:white;
+    font-family:'Cinzel', serif;
+}
+
+.container{
+    width:90%;
+    max-width:450px;
+    text-align:center;
+}
+
+.logo{
+    font-size:70px;
+    color:#d4af37;
+    margin-bottom:20px;
+}
+
+h1{
+    font-size:42px;
+    margin-bottom:10px;
+}
+
+.subtitulo{
+    color:#aaa;
+    margin-bottom:40px;
+}
+
+.botoes{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.botao{
+    text-decoration:none;
+    padding:18px;
+    border-radius:15px;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.botao i{
+    margin-right:10px;
+}
+
+.mestre{
+    background:#6b0f1a;
+}
+
+.jogador{
+    background:#1e3a5f;
+}
+
+.botao:hover{
+    transform:scale(1.03);
+}
+
+.erroInput{
+    border:2px solid #c62828 !important;
+}
+
+.mensagemErro{
+    color:#c62828;
+    font-size:14px;
+    min-height:18px;
+    margin-top:-10px;
+}
