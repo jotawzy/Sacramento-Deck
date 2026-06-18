@@ -1,40 +1,146 @@
-import { db, ref, onValue, set, get } from "./firebase.js";
-import { comprarCartaFirebase, reiniciarDeckFirebase } from "./deck.js";
+import {
+  db,
+  ref,
+  onValue,
+  set,
+  get,
+  remove
+} from "./firebase.js";
 
-// Verifica em qual tela estamos para rodar o código certo
+import {
+  comprarCartaFirebase,
+  reiniciarDeckFirebase
+} from "./deck.js";
+
+/* =========================
+   IDENTIFICA TELA
+========================= */
 const campoMestre = document.getElementById("log-iniciativas");
 const campoJogador = document.getElementById("area-cartas-jogador");
 
+/* =========================
+   🔥 TELA DO MESTRE
+========================= */
 if (campoMestre) {
-  // === LÓGICA DA TELA DO MESTRE ===
   const tabelaIniciativa = document.getElementById("tabela-corpo");
   const logIniciativas = document.getElementById("log-iniciativas");
 
-  // Escuta o Firebase em tempo real
-  onValue(ref(db, "sala"), (snapshot) => {
+  // 🔴 ÚNICO LISTENER (FONTE DA VERDADE)
+  onValue(ref(db, "sala/iniciativas"), (snapshot) => {
     const dados = snapshot.val() || {};
-    const iniciativas = dados.iniciativas || {};
-    const logs = dados.logs || [];
 
-    // 1. Atualiza a Tabela de Iniciativa (Ordenada por peso da carta)
     tabelaIniciativa.innerHTML = "";
-    const listaOrdenada = Object.entries(iniciativas).sort((a, b) => b[1].peso - a[1].peso);
-    
-    listaOrdenada.forEach(([nome, info]) => {
-      const linha = `<tr>
-        <td><strong>${nome}</strong></td>
-        <td><span style="color: ${info.naipe === '♥' || info.naipe === '♦' ? 'red' : 'black'}">${info.valor}${info.naipe}</span></td>
-      </tr>`;
-      tabelaIniciativa.innerHTML += linha;
-    });
 
-    // 2. Atualiza o Histórico/Log de jogadas
+    const listaOrdenada = Object.entries(dados).sort(
+      (a, b) => (b[1]?.peso || 0) - (a[1]?.peso || 0)
+    );
+
+    listaOrdenada.forEach(([nome, info]) => {
+      tabelaIniciativa.innerHTML += `
+        <tr>
+          <td><strong>${nome}</strong></td>
+          <td style="color: ${
+            info.naipe === "♥" || info.naipe === "♦" ? "red" : "black"
+          }">
+            ${info.valor}${info.naipe}
+          </td>
+        </tr>
+      `;
+    });
+  });
+
+  // 🔥 LOGS DO MESTRE (TEMPO REAL)
+  onValue(ref(db, "sala/logs"), (snapshot) => {
+    const logs = snapshot.val() || [];
+
     logIniciativas.innerHTML = "";
     logs.forEach((txt) => {
       logIniciativas.innerHTML += `<p>${txt}</p>`;
     });
   });
 
+  /* =========================
+     BOTÃO NOVA RODADA
+  ========================= */
+  document.getElementById("btn-nova-rodada")?.addEventListener("click", async () => {
+    await set(ref(db, "sala/iniciativas"), {});
+    
+    const snap = await get(ref(db, "sala/logs"));
+    const logs = snap.val() || [];
+
+    logs.push("--- Nova Rodada Iniciada ---");
+    await set(ref(db, "sala/logs"), logs);
+  });
+
+  /* =========================
+     BOTÃO LIMPAR TUDO
+  ========================= */
+  document.getElementById("btn-limpar-tudo")?.addEventListener("click", async () => {
+    if (confirm("Deseja resetar tudo?")) {
+      await set(ref(db, "sala/iniciativas"), {});
+      await set(ref(db, "sala/logs"), ["Mesa reiniciada pelo mestre."]);
+
+      await reiniciarDeckFirebase();
+    }
+  });
+}
+
+/* =========================
+   🃏 TELA DO JOGADOR
+========================= */
+if (campoJogador) {
+  const nomeJogador =
+    localStorage.getItem("rpg_nome_jogador") || "Jogador Anônimo";
+
+  const btnComprar = document.getElementById("btn-comprar-carta");
+  const areaCartas = document.getElementById("area-cartas-jogador");
+
+  btnComprar?.addEventListener("click", async () => {
+    btnComprar.disabled = true;
+    btnComprar.innerText = "Puxando...";
+
+    try {
+      const carta = await comprarCartaFirebase();
+
+      // 🔥 ENVIA INICIATIVA (FONTE ÚNICA)
+      await set(ref(db, `sala/iniciativas/${nomeJogador}`), {
+        valor: carta.valor,
+        naipe: carta.naipe,
+        peso: carta.peso
+      });
+
+      // 🔥 LOG GLOBAL
+      const snapLogs = await get(ref(db, "sala/logs"));
+      const logs = snapLogs.val() || [];
+
+      logs.push(`${nomeJogador} puxou ${carta.valor} de ${carta.naipe}`);
+      await set(ref(db, "sala/logs"), logs);
+
+      // 🎴 MOSTRAR CARTA
+      areaCartas.innerHTML = `
+        <div class="carta-visual" style="
+          border: 2px solid #ccc;
+          padding: 20px;
+          border-radius: 10px;
+          background: white;
+          width: 100px;
+          text-align: center;
+          font-size: 20px;
+          color: ${
+            carta.naipe === "♥" || carta.naipe === "♦" ? "red" : "black"
+          }
+        ">
+          ${carta.valor}<br>${carta.naipe}
+        </div>
+      `;
+    } catch (e) {
+      alert("Erro ao comprar carta. O Mestre precisa reiniciar o deck.");
+    }
+
+    btnComprar.disabled = false;
+    btnComprar.innerText = "Comprar Carta";
+  });
+}
   // Botão Nova Rodada
   document.getElementById("btn-nova-rodada")?.addEventListener("click", async () => {
     await set(ref(db, "sala/iniciativas"), {});
