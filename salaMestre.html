@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mesa do Mestre</title>
+
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="stylesheet" href="Css/style.css">
+    <link rel="stylesheet" href="Css/mestre.css">
+</head>
+<body>
+
+<div class="sala">
+
+    <div class="topoSala">
+        <h2 id="nomeMestreTopo"></h2>
+    </div>
+
+    <div class="abas">
+
+        <button class="aba">
+            <i class="fa-solid fa-cards-blank"></i>
+            Deck Livre
+        </button>
+
+        <button class="aba">
+            <i class="fa-solid fa-khanda"></i>
+            Iniciativa
+        </button>
+
+    </div>
+
+
+    <div class="historico">
+
+        <h2>Deck Livre</h2>
+
+        <div id="historicoDeck"></div>
+
+        <hr>
+
+
+        <h2>Histórico das Iniciativas</h2>
+
+        <div id="historicoIniciativa"></div>
+
+        <hr>
+
+
+        <h2>Ordem da Rodada</h2>
+
+        <div id="tabelaIniciativa"></div>
+
+        <hr>
+
+
+        <h2>Controle da Mesa</h2>
+
+
+        <button
+        id="botaoReiniciarIniciativa"
+        class="botaoControle">
+
+            Reiniciar Iniciativas
+
+        </button>
+
+
+        <button
+        id="botaoNovaRodada"
+        class="botaoControle">
+
+            Nova Rodada
+
+        </button>
+
+
+        <button
+        id="botaoLimparHistorico"
+        class="botaoControle">
+
+            Limpar Todo Histórico
+
+        </button>
+
+
+        <button
+        id="botaoLimparDeck"
+        class="botaoControle">
+
+            Limpar Histórico do Deck
+
+        </button>
+
+
+        <button
+        id="botaoLimparIniciativa"
+        class="botaoControle">
+
+            Limpar Histórico das Iniciativas
+
+        </button>
+
+    </div>
+
+</div>
+
+<script type="module" src="Js/firebase.js"></script>
+<script type="module" src="Js/deck.js"></script>
+<script type="module" src="Js/cartas.js"></script>
+<script type="module" src="Js/iniciativa.js"></script>
+
+</body>
