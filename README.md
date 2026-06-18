@@ -12,7 +12,7 @@ O projeto foi estruturado para ser leve, seguro e 100% estático, rodando direta
 * **Histórico das Iniciativas:** Acompanha em tempo real qual carta cada jogador escolheu para a rodada.
 * **Ordem da Rodada (Tabela de Iniciativa):** Organiza e ordena automaticamente os personagens do maior peso de carta para o menor.
 * **Controle da Mesa:**
-* * **Nova Rodada:** Limpa a tabela de iniciativas ativas para que os jogadores possam comprar novas cartas.
+  * **Nova Rodada:** Limpa a tabela de iniciativas ativas para que os jogadores possam comprar novas cartas.
   * **Limpar Todo Histórico:** Reseta os logs de jogadas, limpa a mesa e reinicia o baralho central.
 
 ### ⚔️ Painel do Jogador (`salaJogador.html`)
