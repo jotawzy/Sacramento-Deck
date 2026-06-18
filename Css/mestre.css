@@ -172,3 +172,84 @@ input{
     font-size:14px;
     margin-bottom:4px;
 }
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 15px;
+}
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+h1, h2 {
+    color: #2c3e50;
+}
+.btn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+.btn-perigo {
+    background-color: #e74c3c;
+}
+.btn-principal {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.btn:disabled, .btn-principal:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+.botoes-controle {
+    margin-bottom: 20px;
+}
+.painel-principal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.bloco-tabela, .bloco-historico {
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th, td {
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+th {
+    background-color: #ecf0f1;
+}
+.caixa-log {
+    border: 1px solid #ccc;
+    background: #fafafa;
+    padding: 10px;
+    height: 250px;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 14px;
+    border-radius: 4px;
+}
