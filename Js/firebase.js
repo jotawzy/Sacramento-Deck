@@ -1,8 +1,9 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getDatabase, ref, push, set, get, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
+// Credenciais de conexão do Sacramento Deck
 const firebaseConfig = {
-  apiKey: "AIzaSyBhiu_SiuNtirF7cXQJ3Mq3vdg22mPyQa4",
+  apiKey: "AIzaSyBhiu_SiuNtirF7cXQJ3Mq3vdg22mPyQa4", 
   authDomain: "sacramentodeck.firebaseapp.com",
   databaseURL: "https://sacramentodeck-default-rtdb.firebaseio.com",
   projectId: "sacramentodeck",
