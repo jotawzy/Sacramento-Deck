@@ -1,0 +1,174 @@
+.painel{
+    width:90%;
+    max-width:450px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.icone{
+    font-size:60px;
+    color:#d4af37;
+    text-align:center;
+}
+
+input{
+    padding:18px;
+    border:none;
+    border-radius:12px;
+    background:#1b1b1b;
+    color:white;
+    font-size:16px;
+}
+
+.botaoCriar{
+    padding:18px;
+    border:none;
+    border-radius:12px;
+    background:#6b0f1a;
+    color:white;
+    font-size:17px;
+    font-family:'Cinzel', serif;
+}
+
+.sala{
+    width:95%;
+    max-width:900px;
+}
+
+.topoSala{
+    text-align:center;
+    margin-bottom:30px;
+}
+
+.abas{
+    display:flex;
+    gap:15px;
+    margin-bottom:30px;
+}
+
+.aba{
+    flex:1;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    background:#222;
+    color:white;
+}
+
+.historico{
+    background:#1a1a1a;
+    padding:20px;
+    border-radius:15px;
+}
+
+.painel{
+    width:90%;
+    max-width:450px;
+
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+.icone{
+    font-size:60px;
+    color:#d4af37;
+    text-align:center;
+}
+
+
+.campoSenha{
+    position:relative;
+}
+
+.campoSenha input{
+    width:100%;
+    box-sizing:border-box;
+}
+
+.botaoOlho{
+    position:absolute;
+    right:15px;
+    top:50%;
+    transform:translateY(-50%);
+    background:none;
+    border:none;
+    color:#999;
+    cursor:pointer;
+    font-size:18px;
+}
+
+.registroHistorico{
+    background:#1b1b1b;
+    border:1px solid #2b2b2b;
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:15px;
+
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.infoHistorico{
+    display:flex;
+    align-items:center;
+    gap:10px;
+
+    color:#bdbdbd;
+    font-size:14px;
+}
+
+.cartaHistorico{
+    font-size:28px;
+    color:#d4af37;
+    font-weight:bold;
+}
+
+.registroHistorico p{
+    margin:4px 0;
+}
+
+.linhaIniciativa{
+    background:#1b1b1b;
+    border:1px solid #2b2b2b;
+    border-radius:14px;
+
+    padding:18px;
+    margin-bottom:12px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.nomeTabela{
+    color:#d0d0d0;
+    font-size:16px;
+}
+
+.cartaTabela{
+    font-size:24px;
+    font-weight:bold;
+    color:#d4af37;
+}
+
+.botaoControle{
+    width:100%;
+    padding:18px;
+    margin-top:15px;
+    border:none;
+    border-radius:14px;
+    background:#6b0f1a;
+    color:white;
+    font-size:16px;
+    font-family:'Cinzel', serif;
+    cursor:pointer;
+}
+
+.posicaoIniciativa{
+    color:#d4af37;
+    font-size:14px;
+    margin-bottom:4px;
+}
