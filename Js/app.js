@@ -131,6 +131,103 @@ if (btnComprar) {
     btnComprar.innerText = "Comprar Carta";
   });
 }
+    // 2. Atualiza o Histórico/Log de Jogadas
+    if (logIniciativas) {
+      logIniciativas.innerHTML = "";
+      const listaLogs = Array.isArray(logs) ? logs : Object.values(logs);
+      listaLogs.forEach((txt) => {
+        logIniciativas.innerHTML += `<p style="margin: 5px 0; border-bottom: 1px dashed #ddd; padding-bottom: 3px;">${txt}</p>`;
+      });
+      logIniciativas.scrollTop = logIniciativas.scrollHeight; // Rola o scroll para o fim automaticamente
+    }
+  });
+
+  // Evento dos botões de controle do Mestre
+  document.getElementById("btn-nova-rodada")?.addEventListener("click", async () => {
+    try {
+      await set(ref(db, "sala/iniciativas"), {});
+      const snapLogs = await get(ref(db, "sala/logs"));
+      let atualLogs = snapLogs.val();
+      atualLogs = Array.isArray(atualLogs) ? atualLogs : (atualLogs ? Object.values(atualLogs) : []);
+      atualLogs.push("--- Nova Rodada Iniciada ---");
+      await set(ref(db, "sala/logs"), atualLogs);
+    } catch (e) {
+      alert("Erro ao iniciar nova rodada: " + e.message);
+    }
+  });
+
+  document.getElementById("btn-limpar-tudo")?.addEventListener("click", async () => {
+    if (confirm("Deseja resetar completamente o histórico e a mesa?")) {
+      try {
+        await set(ref(db, "sala"), {
+          iniciativas: {},
+          logs: ["Mesa reiniciada pelo mestre."]
+        });
+      } catch (e) {
+        alert("Erro ao limpar a mesa: " + e.message);
+      }
+    }
+  });
+}
+
+// ==========================================
+// TELA DO JOGADOR (salaJogador.html)
+// ==========================================
+if (btnComprar) {
+  btnComprar.addEventListener("click", async () => {
+    // Pega o nome salvo ou pede um novo se não existir
+    let nomeJogador = localStorage.getItem("rpg_nome_jogador");
+    if (!nomeJogador || nomeJogador === "Jogador") {
+      nomeJogador = prompt("Qual é o seu nome de Jogador?") || "Jogador Anônimo";
+      localStorage.setItem("rpg_nome_jogador", nomeJogador);
+    }
+
+    btnComprar.disabled = true;
+    btnComprar.innerText = "Puxando Carta...";
+
+    try {
+      // Baralho interno para evitar falhas de arquivos cruzados
+      const valores = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+      const naipes = ["♠", "♥", "♦", "♣"];
+      const pesos = { "A": 14, "K": 13, "Q": 12, "J": 11, "10": 10, "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2 };
+
+      const valorSorteado = valores[Math.floor(Math.random() * valores.length)];
+      const naipeSorteado = naipes[Math.floor(Math.random() * naipes.length)];
+      const pesoSorteado = pesos[valorSorteado];
+
+      // 1. Envia a jogada para a lista de iniciativas do mestre
+      await set(ref(db, `sala/iniciativas/${nomeJogador}`), {
+        valor: valorSorteado,
+        naipe: naipeSorteado,
+        peso: pesoSorteado
+      });
+
+      // 2. Registra no histórico geral da mesa
+      const snapLogs = await get(ref(db, "sala/logs"));
+      let atualLogs = snapLogs.val();
+      atualLogs = Array.isArray(atualLogs) ? atualLogs : (atualLogs ? Object.values(atualLogs) : []);
+      atualLogs.push(`${nomeJogador} puxou: ${valorSorteado} de ${naipeSorteado}`);
+      await set(ref(db, "sala/logs"), atualLogs);
+
+      // 3. Renderiza a carta graficamente na tela do jogador
+      if (areaCartas) {
+        const corCard = (naipeSorteado === '♥' || naipeSorteado === '♦') ? 'red' : 'black';
+        areaCartas.innerHTML = `
+          <div style="border: 2px solid #333; padding: 20px; border-radius: 10px; background: white; width: 120px; margin: 20px auto; text-align: center; font-size: 24px; color: ${corCard}; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="text-align: left; font-size: 14px;">${valorSorteado}</div>
+            <div style="font-size: 40px; margin: 10px 0;">${naipeSorteado}</div>
+            <div style="text-align: right; font-size: 14px; transform: rotate(180deg);">${valorSorteado}</div>
+          </div>
+        `;
+      }
+    } catch (e) {
+      alert("Erro de sincronização: " + e.message);
+    }
+
+    btnComprar.disabled = false;
+    btnComprar.innerText = "Comprar Carta";
+  });
+}
             <td><span style="color: ${corNaipe}; font-weight: bold;">${info.valor || ''}${info.naipe || ''}</span></td>
           </tr>`;
           tabelaIniciativa.innerHTML += linha;
